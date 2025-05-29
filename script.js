@@ -1,3 +1,4 @@
+/* prelims - listening to key presses */
 const calculator = document.querySelector('.calculator')
 const keys = calculator.querySelector('.calculator__keys')
 
@@ -43,43 +44,81 @@ keys.addEventListener('click', e => {
 const display = document.querySelector('.calculator__display')
 
 keys.addEventListener('click', e => {
-    if (e.target.matches('button')) {
-        const key = e.target
-        const action = key.dataset.action
-        const keyContent = key.textContent
-        const displayedNum = display.textContent
-        
-        if (!action) {
-            if (displayedNum === '0') {
-                display.textContent = keyContent
-            } else {
-                display.textContent = displayedNum + keyContent
-            }
+  if (e.target.matches('button')) {
+    const key = e.target
+    const action = key.dataset.action
+    const keyContent = key.textContent
+    const displayedNum = display.textContent
+
+    const previousKeyType = calculator.dataset.previousKeyType
+
+    if (!action) {
+        // replace calculator display with clicked key 
+        if (displayedNum === '0' || previousKeyType === 'operator') {
+            display.textContent = keyContent
         }
-
-        if (action === 'decimal') {
-            display.textContent = displayedNum + '.'
+        // append the clicked key to the displayed number
+        else {
+            display.textContent = displayedNum + keyContent
         }
-
-        if (
-            action === 'add' ||
-            action === 'subtract' ||
-            action === 'multiply' ||
-            action === 'divide'
-        ) {
-            let operatorSymbol = '';
-            if (action === 'add') operatorSymbol = '+';
-            if (action === 'subtract') operatorSymbol = '-';
-            if (action === 'multiply') operatorSymbol = '×';
-            if (action === 'divide') operatorSymbol = '÷';
-
-            display.textContent = displayedNum + operatorSymbol;
-
-            key.classList.add('is-depressed');
-            calculator.dataset.previousKeyType = 'operator'
-        }
-
-        // Remove .is-depressed class from all keys
-        Array.from(key.parentNode.children).forEach(k => k.classList.remove('is-depressed'))
     }
+
+    // decimal button
+    if (action === 'decimal') {
+        display.textContent = displayedNum + '.'
+    }
+
+    // to highlight the operator button
+    if (
+        action === 'add' ||
+        action === 'subtract' ||
+        action === 'multiply' ||
+        action === 'divide'
+    ) {
+        key.classList.add('is-depressed')
+
+        // add custom attribute
+        calculator.dataset.previousKeyType = 'operator'
+
+        // get first number and operator
+        calculator.dataset.firstValue = displayedNum
+        calculator.dataset.operator = action
+    }
+
+    // calculate the result of operation
+    if (action === 'calculate') {
+        const firstValue = calculator.dataset.firstValue
+        const operator = calculator.dataset.operator
+        const secondValue = displayedNum
+
+        display.textContent = calculate(firstValue, operator, secondValue)
+    }
+
+    // Remove .is-depressed class from all keys
+    Array.from(key.parentNode.children)
+      .forEach(k => k.classList.remove('is-depressed'))
+  }
 })
+
+/**
+ * calculate function to calculate result of expression
+ * @param {*} n1, first number
+ * @param {*} operator, operator applied
+ * @param {*} n2, last number
+ */
+const calculate = (n1, operator, n2) => {
+  // Perform calculation and return calculated value
+  let result = ''
+
+  if (operator === 'add') {
+    result = parseFloat(n1) + parseFloat(n2)
+  } else if (operator === 'subtract') {
+    result = parseFloat(n1) - parseFloat(n2)
+  } else if (operator === 'multiply') {
+    result = parseFloat(n1) * parseFloat(n2)
+  } else if (operator === 'divide') {
+    result = parseFloat(n1) / parseFloat(n2)
+  }
+
+  return result
+}
