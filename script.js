@@ -1,6 +1,7 @@
 const calculator = document.querySelector('.calculator')
 const keys = calculator.querySelector('.calculator__keys')
 const display = document.querySelector('.calculator__display')
+const clearButton = keys.querySelector('[data-action="clear"]')
 
 // Initialize calculator state
 calculator.dataset.previousKeyType = ''
@@ -27,6 +28,9 @@ keys.addEventListener('click', e => {
         display.textContent = displayedNum + keyContent
       }
       calculator.dataset.previousKeyType = 'number'
+
+      // Change clear button text to 'CE'
+      clearButton.textContent = 'CE'      
     }
 
     if (action === 'decimal') {
@@ -36,6 +40,9 @@ keys.addEventListener('click', e => {
         display.textContent = displayedNum + '.'
       }
       calculator.dataset.previousKeyType = 'decimal'
+
+      // Change clear button text to 'CE'
+      clearButton.textContent = 'CE'
     }
 
     if (action === 'clear') {
@@ -44,6 +51,9 @@ keys.addEventListener('click', e => {
       calculator.dataset.firstValue = ''
       calculator.dataset.operator = ''
       calculator.dataset.modValue = ''
+
+      // Reset clear button text to 'AC'
+      clearButton.textContent = 'AC'
     }
 
     if (
@@ -68,24 +78,32 @@ keys.addEventListener('click', e => {
       key.classList.add('is-depressed')
       calculator.dataset.previousKeyType = 'operator'
       calculator.dataset.operator = action
+
+      // Change clear button text to 'CE'
+      clearButton.textContent = 'CE'
     }
 
     if (action === 'calculate') {
-      let firstValue = calculator.dataset.firstValue
-      const operator = calculator.dataset.operator
-      const secondValue = displayedNum
+        let firstValue = calculator.dataset.firstValue
+        let secondValue = displayedNum
+        const operator = calculator.dataset.operator
 
-      if (firstValue) {
+        // Repeat the last operation if equal is pressed again
         if (previousKeyType === 'calculate') {
-          firstValue = displayedNum
-          secondValue = calculator.dataset.modValue
+            firstValue = displayedNum
+            secondValue = calculator.dataset.modValue
         }
-        
-        display.textContent = calculate(firstValue, operator, secondValue)
-      }
 
-      calculator.dataset.modValue = secondValue
-      calculator.dataset.previousKeyType = 'calculate'
+        if (firstValue && operator) {
+            const result = calculate(firstValue, operator, secondValue)
+            display.textContent = result
+
+            // Store the result for chaining further equals
+            calculator.dataset.firstValue = result
+            calculator.dataset.modValue = secondValue
+        }
+
+        calculator.dataset.previousKeyType = 'calculate'
     }
   }
 })
