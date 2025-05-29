@@ -61,11 +61,23 @@ keys.addEventListener('click', e => {
         else {
             display.textContent = displayedNum + keyContent
         }
+
+        calculator.dataset.previousKey = 'number'
     }
 
     // decimal button
     if (action === 'decimal') {
-        display.textContent = displayedNum + '.'
+        if (!displayedNum.includes('.')) {
+            display.textContent = displayedNum + '.'
+        } else if (previousKeyType === 'operator') {
+            display.textContent = '0.'
+        }
+        calculator.dataset.previousKey = 'decimal'
+    }
+
+    // clear button
+    if (action === 'clear'){
+        calculator.dataset.previousKeyType = 'clear'
     }
 
     // to highlight the operator button
@@ -92,6 +104,7 @@ keys.addEventListener('click', e => {
         const secondValue = displayedNum
 
         display.textContent = calculate(firstValue, operator, secondValue)
+        calculator.dataset.previousKeyType = 'calculate'
     }
 
     // Remove .is-depressed class from all keys
