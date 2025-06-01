@@ -2,10 +2,18 @@ const calculate = (n1, operator, n2) => {
   const firstNum = parseFloat(n1)
   const secondNum = parseFloat(n2)
 
-  if (operator === 'add') return firstNum + secondNum
-  if (operator === 'subtract') return firstNum - secondNum
-  if (operator === 'multiply') return firstNum * secondNum
-  if (operator === 'divide') return secondNum !== 0 ? firstNum / secondNum : 'Error'
+  let result
+  if (operator === 'add') result = firstNum + secondNum
+  if (operator === 'subtract') result = firstNum - secondNum
+  if (operator === 'multiply') result = firstNum * secondNum
+  if (operator === 'divide') result = secondNum !== 0 ? firstNum / secondNum : 'Error'
+
+  // fix long floats and truncating trailing zeros
+  if (typeof result === 'number') {
+    result = parseFloat(result.toFixed(10))
+  }
+
+  return result
 }
 
 const getKeyType = key => {
@@ -24,6 +32,12 @@ const createResultString = (key, displayedNum, state) => {
     modValue,
     previousKeyType
   } = state
+
+  // Error state guard
+  if (displayedNum === 'Error') {
+    if (keyType === 'clear') return '0'
+    return 'Error'
+  }
 
   if (keyType === 'number') {
     // Reset if user starts new calculation after pressing '='
